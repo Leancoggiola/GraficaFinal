@@ -114,20 +114,10 @@ class Prop_table():
                 "box": {
                     "xlate": "Caja",
                     "params": {
-                        "low":   {"xlate": "low", "type": "vector"},
-                        "high":   {"xlate": "high", "type": "vector"},
+                        "location":   {"xlate": "Ubicación", "type": "vector"},
+                        "side":       {"xlate": "Lado",      "type": "float"},
                         "diffuse":    {"xlate": "Difusa",    "type": "rgb"},
                         "ambient":    {"xlate": "Ambiente",  "type": "rgb"},
-                        "reflection": {"xlate": "Reflexión", "type": "rgb"}}},
-
-                "triangle": {
-                    "xlate": "Caja",
-                    "params": {
-                        "puntoA":   {"xlate": "PuntoA", "type": "vector"},
-                        "puntoB":   {"xlate": "PuntoB", "type": "vector"},
-                        "puntoC":   {"xlate": "PuntoC", "type": "vector"},
-                        "diffuse":    {"xlate": "Difusa", "type": "rgb"},
-                        "ambient":    {"xlate": "Ambiente", "type": "rgb"},
                         "reflection": {"xlate": "Reflexión", "type": "rgb"}}},
 
                 "sphere": {
@@ -137,7 +127,17 @@ class Prop_table():
                         "radius":     {"xlate": "Radio",      "type": "float"},
                         "diffuse":    {"xlate": "Difusa",     "type": "rgb"},
                         "ambient":    {"xlate": "Ambiente",    "type": "rgb"},
-                        "reflection": {"xlate": "Reflexión",  "type": "rgb"}}}
+                        "reflection": {"xlate": "Reflexión",  "type": "rgb"}}},
+
+                "cone": {
+                    "xlate": "Cono",
+                    "params": {
+                        "location": {"xlate": "Ubicación", "type": "vector"},
+                        "height": {"xlate": "Alto", "type": "float"},
+                        "radius": {"xlate": "Radio", "type": "float"},
+                        "diffuse": {"xlate": "Difusa", "type": "rgb"},
+                        "ambient": {"xlate": "Ambiente", "type": "rgb"},
+                        "reflection": {"xlate": "Reflexión", "type": "rgb"}}}
             }
         }
     }

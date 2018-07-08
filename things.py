@@ -70,18 +70,23 @@ class Sphere(Thing):
 
 
     def intersection(self, ray):
-        a = ray.direct.dot(ray.direct)
+        a = ray.direct.dot(ray.direct)    #El rayo ya está normalizado (vector unitario)
+
         aux = Vec3(ray.orig).subtract(Vec3(self.center))
+
         b = 2 * (ray.direct.dot(aux))
+
         c = ((Vec3(ray.orig).subtract(Vec3(self.center))).dot(Vec3(ray.orig).subtract(Vec3(self.center)))) - self.radius**2
+
+
         square_root = b**2 - 4*a*c
 
         if(square_root < 0):
             return []
         elif (square_root == 0):
             d = -b / (2*a)
-            n = ray.direct.scale(d).subtract(Vec3(self.center))
-            return [Hit(d, n, self)]
+            n = ray.direct.scale(d).subtract(Vec3(self.center)) #Resta entre vector unitario del rayo * distancia y vector centro de la esfera
+            return [Hit(d, n, self)]   #Sacar normal en ese punto para mandarla por parámetro en HIT()
         else:
             d1 = (-b + np.sqrt(square_root)) / (2*a)
             d2 = (-b - np.sqrt(square_root)) / (2*a)
@@ -102,180 +107,8 @@ class Sphere(Thing):
         else:
             return d2
 
-
-
-class Triangle(Thing):
-    def __init__(self, props):
-        super(Triangle, self).__init__(props)
-        self.props = props
-        self.puntoA = Vec3(props['puntoA'])
-        self.puntoB = Vec3(props['puntoB'])
-        self.puntoC = Vec3(props['puntoC'])
-
-
-    def intersection(self, ray):
-        a = Vec3 (0,0,0)
-        b = Vec3 (0,0,0)
-        bordeA = Vec3(0, 0, 0)
-        bordeB = Vec3(0, 0, 0)
-        bordeC = Vec3(0, 0, 0)
-        vpA = Vec3(0, 0, 0)
-        vpB = Vec3(0, 0, 0)
-        vpC = Vec3(0, 0, 0)
-        c = Vec3(0, 0, 0)
-        p = Vec3(0, 0, 0)
-        n = Vec3(0, 0, 0)
-
-        a = self.puntoB.subtract(self.puntoA)
-        b = self.puntoC.subtract(self.puntoA)
-        n = a.cross(b).normalize()
-        
-        ln = n.dot(ray.direct)
-
-        if (ln == 0):
-            return []
-
-         
-        d = (n.x * self.puntoA.x + n.y * self.puntoA.y + n.z * self.puntoA.z)
-         
-        numerador = n.scale(d).subtract(ray.orig).dot(n)
-        t = numerador / ln
-
-        if t <= 0:
-            return []
-
-        p = ray.orig.add( ray.direct.scale(t))
-
-
-        bordeA = self.puntoB.subtract( self.puntoA)
-        vpA = p.subtract(self.puntoA)
-        c = bordeA.cross(vpA)
-
-        if (n.dot(c) < 0):
-            return []
-
-
-        bordeB = self.puntoC.subtract(self.puntoB)
-        vpB = p.subtract(self.puntoB)
-        c = bordeB.cross(vpB)
-
-        if (n.dot(c) < 0):
-            return []
-
-
-        bordeC = self.puntoA.subtract( self.puntoC)
-        vpC = p.subtract(self.puntoC)
-        c = bordeC.cross(vpC)
-
-        if (n.dot(c) < 0):
-            return []
-
-        return  [Hit(t, n.normalize(), self)]
-
-
-
-class Cylinder(Thing):
-    def __init__(self, props):
-        super(Cylinder, self).__init__()
-        self.props = props
-
-
-    def intersection(self, ray):
-        pass
-
-
-
-class Box(Thing):
-
-    def __init__(self, props):
-        super(Box, self).__init__(props)
-        self.props = props
-        self.high = Vec3(props['high'])
-        self.low = Vec3(props['low'])
-
-
-    def intersection(self, ray):
-        Tnear = -1e99
-        Tfar = 1e99
-        n = Vec3(-1,0,0)
-        
-        if ray.direct.x == 0:
-            if (0 < self.low.x or 0 > self.high.x):
-                return []
-        
-        T1 = (self.low.x - ray.orig.x) / ray.direct.x
-        T2 = (self.high.x - ray.orig.x) / ray.direct.x
-
-        if T1 > T2:
-            suport = T1
-            T1 = T2
-            T2 = suport
-            n.x=1
-        if T1 > Tnear:
-            Tnear = T1
-        if T2 < Tfar:
-            Tfar = T2
-        if Tfar < Tnear:
-            return []
-        if Tfar < 0:
-            return []
-
-        if ray.direct.y == 0:
-            if  (0 < self.low.y or 0 > self.high.y):
-                return []
-
-        T1 = (self.low.y - ray.orig.y) / ray.direct.y
-        T2 = (self.high.y - ray.orig.y) / ray.direct.y
-
-        if T1 > T2:
-            suport = T1
-            T1 = T2
-            T2 = suport
-            if T1>Tnear:
-                n.y=1
-        if T1 > Tnear:
-            Tnear= T1
-            n.x=0
-            if(n.y==0):
-                n.y=-1
-        if T2 < Tfar:
-            Tfar = T2
-        if Tfar < Tnear:
-            return []
-        if Tfar < 0:
-            return []
-
-
-        if ray.direct.z == 0:
-            if  (0 < self.low.z or 0 > self.high.z):
-                return []
-
-        T1 = (self.low.z - ray.orig.z) / ray.direct.z
-        T2 = (self.high.z - ray.orig.z) / ray.direct.z
-
-        if T1 > T2:
-            suport = T1
-            T1 = T2
-            T2 = suport
-            if T1 > Tnear: 
-                n.z=1
-        if T1 > Tnear:
-            Tnear = T1
-            n.y=0
-            n.x=0
-            if(n.z==0):
-                n.z=-1
-            
-        if T2 < Tfar:
-            Tfar = T2
-        if Tfar < Tnear:
-            return []
-        if Tfar < 0:
-            return []
-
-        return [Hit(Tnear,n,self)]
-     
-
+#http://lousodrome.net/blog/light/2017/01/03/intersection-of-a-ray-and-a-cone/
+#https://stackoverflow.com/questions/13792861/surface-normal-to-a-cone
 class Cone(Thing):
     def __init__(self, props):
         super(Cone, self).__init__(props)
@@ -340,6 +173,169 @@ class Cone(Thing):
         else:
             return d2
 
+
+class Triangle(Thing):
+    def __init__(self, props):
+        super(Triangle, self).__init__(props)
+        self.props = props
+        self.puntoA = Vec3(props['puntoA'])
+        self.puntoB = Vec3(props['puntoB'])
+        self.puntoC = Vec3(props['puntoC'])
+
+    def intersection(self, ray):
+        a = Vec3(0, 0, 0)
+        b = Vec3(0, 0, 0)
+        bordeA = Vec3(0, 0, 0)
+        bordeB = Vec3(0, 0, 0)
+        bordeC = Vec3(0, 0, 0)
+        vpA = Vec3(0, 0, 0)
+        vpB = Vec3(0, 0, 0)
+        vpC = Vec3(0, 0, 0)
+        c = Vec3(0, 0, 0)
+        p = Vec3(0, 0, 0)
+        n = Vec3(0, 0, 0)
+
+        a = self.puntoB.subtract(self.puntoA)
+        b = self.puntoC.subtract(self.puntoA)
+        n = a.cross(b).normalize()
+
+        ln = n.dot(ray.direct)
+
+        if (ln == 0):
+            return []
+
+        d = (n.x * self.puntoA.x + n.y * self.puntoA.y + n.z * self.puntoA.z)
+
+        numerador = n.scale(d).subtract(ray.orig).dot(n)
+        t = numerador / ln
+
+        if t <= 0:
+            return []
+
+        p = ray.orig.add(ray.direct.scale(t))
+
+        bordeA = self.puntoB.subtract(self.puntoA)
+        vpA = p.subtract(self.puntoA)
+        c = bordeA.cross(vpA)
+
+        if (n.dot(c) < 0):
+            return []
+
+        bordeB = self.puntoC.subtract(self.puntoB)
+        vpB = p.subtract(self.puntoB)
+        c = bordeB.cross(vpB)
+
+        if (n.dot(c) < 0):
+            return []
+
+        bordeC = self.puntoA.subtract(self.puntoC)
+        vpC = p.subtract(self.puntoC)
+        c = bordeC.cross(vpC)
+
+        if (n.dot(c) < 0):
+            return []
+
+        return [Hit(t, n.normalize(), self)]
+
+
+
+class Cylinder(Thing):
+    def __init__(self, props):
+        super(Cylinder, self).__init__()
+        self.props = props
+
+
+    def intersection(self, ray):
+        pass
+
+
+class Box(Thing):
+
+    def __init__(self, props):
+        super(Box, self).__init__(props)
+        self.props = props
+        self.high = Vec3(props['high'])
+        self.low = Vec3(props['low'])
+
+    def intersection(self, ray):
+        Tnear = -1e99
+        Tfar = 1e99
+        n = Vec3(-1, 0, 0)
+
+        if ray.direct.x == 0:
+            if (0 < self.low.x or 0 > self.high.x):
+                return []
+
+        T1 = (self.low.x - ray.orig.x) / ray.direct.x
+        T2 = (self.high.x - ray.orig.x) / ray.direct.x
+
+        if T1 > T2:
+            suport = T1
+            T1 = T2
+            T2 = suport
+            n.x = 1
+        if T1 > Tnear:
+            Tnear = T1
+        if T2 < Tfar:
+            Tfar = T2
+        if Tfar < Tnear:
+            return []
+        if Tfar < 0:
+            return []
+
+        if ray.direct.y == 0:
+            if (0 < self.low.y or 0 > self.high.y):
+                return []
+
+        T1 = (self.low.y - ray.orig.y) / ray.direct.y
+        T2 = (self.high.y - ray.orig.y) / ray.direct.y
+
+        if T1 > T2:
+            suport = T1
+            T1 = T2
+            T2 = suport
+            if T1 > Tnear:
+                n.y = 1
+        if T1 > Tnear:
+            Tnear = T1
+            n.x = 0
+            if (n.y == 0):
+                n.y = -1
+        if T2 < Tfar:
+            Tfar = T2
+        if Tfar < Tnear:
+            return []
+        if Tfar < 0:
+            return []
+
+        if ray.direct.z == 0:
+            if (0 < self.low.z or 0 > self.high.z):
+                return []
+
+        T1 = (self.low.z - ray.orig.z) / ray.direct.z
+        T2 = (self.high.z - ray.orig.z) / ray.direct.z
+
+        if T1 > T2:
+            suport = T1
+            T1 = T2
+            T2 = suport
+            if T1 > Tnear:
+                n.z = 1
+        if T1 > Tnear:
+            Tnear = T1
+            n.y = 0
+            n.x = 0
+            if (n.z == 0):
+                n.z = -1
+
+        if T2 < Tfar:
+            Tfar = T2
+        if Tfar < Tnear:
+            return []
+        if Tfar < 0:
+            return []
+
+        return [Hit(Tnear, n, self)]
 
 
 obj_dict = {

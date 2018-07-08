@@ -29,21 +29,18 @@ from gi.repository import Gtk
 class Viewer(Gtk.Frame):
     def __init__(self, toplevel):
         super(Viewer, self).__init__(
-                    label = "Imagen")
+            label="Imagen")
         self.toplevel = toplevel
 
         self.img = Gtk.Image()
         self.scroller = Gtk.ScrolledWindow(
-                    margin = 4)
+            margin=4)
         self.scroller.add(self.img)
 
         self.add(self.scroller)
 
-
     def update(self, pixbuf):
         self.img.set_from_pixbuf(pixbuf)
-
-
 
 
 class MainWindow(Gtk.Window):
@@ -51,20 +48,21 @@ class MainWindow(Gtk.Window):
         super(MainWindow, self).__init__()
         self.connect('destroy', lambda x: Gtk.main_quit())
         self.set_size_request(400, 300)
-        
+
         viewer = Viewer(self)
-        
+
         self.add(viewer)
         self.show_all()
-        
+
     def run(self):
         Gtk.main()
-        
-        
+
+
 def main():
     mw = MainWindow()
     mw.run()
     return 0
+
 
 if __name__ == '__main__':
     main()
