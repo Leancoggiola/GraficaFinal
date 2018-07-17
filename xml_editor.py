@@ -494,6 +494,9 @@ class Scene(Gtk.Frame):
 
         self.tree.expand_all()
 
+        return None
+
+
 
     def save(self, menuitem):
         if self.filename == None:       # No tenemos nombre para el archivo
@@ -537,6 +540,16 @@ class Scene(Gtk.Frame):
             if fname != "":
                 self.filename = fname
                 self.load_file(self.filename)
+
+
+        for row in self.store:
+            if row[0] == "cameras":
+                for subrow in row.iterchildren():
+                    active = self.cam_label.get_text()
+                    if active == "":
+                        if subrow[0] != active:
+                            props = subrow[1]
+                            self.cam_label.set_text(props['reference'])
 
         fc_dialog.destroy()
 

@@ -155,34 +155,33 @@ class Camera():
         if nearest_hit == None:
             return (0, 0, 0)
         else:
-            #~ pdb.set_trace()
+            """LUZ AMBIENTE"""
             amb_col = nearest_hit.obj.ambient
 
-            # Calculo rayo que va hacia la luz desde el punto de impacto. El rayo se va a llamar "ShadowRay"
-            ShadowRay = Ray(ray.direct.scale(nearest_hit.t),
-                            Vec3(self.lights[0].props["location"]).subtract(ray.direct.scale(nearest_hit.t)).normalize())
+            """"Se calcula el rayo desde el punto de impacto a la luz. Denominado ShadowRay"""
+            ShadowRay = Ray(ray.direct.scale(nearest_hit.t),Vec3(self.lights[0].props["location"]).subtract(ray.direct.scale(nearest_hit.t)).normalize())
 
             Epsilon = Vec3(ShadowRay.direct.x * 0.01, ShadowRay.direct.y * 0.01, ShadowRay.direct.z * 0.01)
             OriginPlusEpsilon = Vec3(ShadowRay.orig.x + Epsilon.x, ShadowRay.orig.y + Epsilon.y, ShadowRay.orig.z +Epsilon.z)
             ShadowRay.orig = OriginPlusEpsilon
 
-            if self.shadow(ShadowRay):                 # Hay sombra
+            """DETERMINA LA SOMBRA"""
+            if self.shadow(ShadowRay):
                 return Vec3(amb_col).as_RGB()
-            else:                                      # No hay sombra
-                # Calculo Luz Difusa
+            else:
+                """LUZ DIFUSA"""
                 cos_ang = abs(nearest_hit.normal.dot(ray.direct))
                 dif_col = nearest_hit.obj.diffuse.scale(cos_ang)
                 col = Vec3(amb_col).add(dif_col)
 
-                # Calculo Luz Phong
+                """LUZ PHONG/ESPECULAR"""
                 R = nearest_hit.normal.scale(2 * (ShadowRay.direct.dot(nearest_hit.normal))).subtract(ShadowRay.direct)
                 phong_col = nearest_hit.obj.reflection.scale(R.dot(ray.direct) ** 160)
-                # .mult(Vec3(self.lights[0].props["color"]))
                 col = col.add(phong_col)
 
                 return col.as_RGB()
 
-
+    """CREAR SOMBRA"""
     def shadow(self, ray):
         hits2 = Hit_list()
 
